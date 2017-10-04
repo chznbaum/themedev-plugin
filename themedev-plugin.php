@@ -83,7 +83,7 @@ function create_portfolio_post_type() {
     'has_archive' => false,
     'exclude_from_search' => false,
     'publicly_queryable' => true,
-    'capability_type' => 'page',
+    'capability_type' => 'post',
   );
 
   register_post_type( 'portfolio', $args );
@@ -102,7 +102,15 @@ function portfolio_meta_box_markup($object) {
 
   <label for="portfolio-meta-box-description"><strong>Description</strong></label>
   <p>Add a simple description to your project so that visitors can better understand it.</p>
-  <textarea name="portfolio-meta-box-description" id="portfolio-meta-box-description" required><?php echo get_post_meta($object->ID, "portfolio-meta-box-description", true); ?></textarea>
+  <?php wp_editor( get_post_meta($object->ID, 'portfolio-meta-box-description', true), 'portfolio-meta-box-description' ) ?>
+
+  <label for="portfolio-meta-box-source"><strong>Link To Source</strong></label>
+  <p>Add a link to your project's source code, if applicable.</p>
+  <input type="url" name="portfolio-meta-box-source" id="portfolio-meta-box-source" value="<?php echo get_post_meta($object->ID, "portfolio-meta-box-source", true); ?>" style="width: 100%;">
+
+  <label for="portfolio-meta-box-live"><strong>Link To Live</strong></label>
+  <p>Add a link where users can see your project in action, if applicable.</p>
+  <input type="url" name="portfolio-meta-box-live" id="portfolio-meta-box-live" value="<?php echo get_post_meta($object->ID, "portfolio-meta-box-live", true); ?>" style="width: 100%;">
 
   <label for="portfolio-meta-box-images"><strong>Images</strong></label>
   <p>Add images to your project, one below the other.</p>
@@ -146,12 +154,24 @@ function save_custom_meta_box($post_id, $post, $update) {
     return $post_id;
 
   $portfolio_meta_box_description_value = '';
+  $portfolio_meta_box_source_value = '';
+  $portfolio_meta_box_live_value = '';
   $portfolio_meta_box_images_value = '';
 
   if(isset($_POST['portfolio-meta-box-description'])) {
     $portfolio_meta_box_description_value = $_POST['portfolio-meta-box-description'];
   }
   update_post_meta($post_id, 'portfolio-meta-box-description', $portfolio_meta_box_description_value);
+
+  if(isset($_POST['portfolio-meta-box-source'])) {
+    $portfolio_meta_box_source_value = $_POST['portfolio-meta-box-source'];
+  }
+  update_post_meta($post_id, 'portfolio-meta-box-source', $portfolio_meta_box_source_value);
+
+  if(isset($_POST['portfolio-meta-box-live'])) {
+    $portfolio_meta_box_live_value = $_POST['portfolio-meta-box-live'];
+  }
+  update_post_meta($post_id, 'portfolio-meta-box-live', $portfolio_meta_box_live_value);
 
   if(isset($_POST['portfolio-meta-box-images'])) {
     $portfolio_meta_box_images_value = $_POST['portfolio-meta-box-images'];
@@ -169,5 +189,16 @@ function remove_custom_field_meta_boxes() {
 }
 
 add_action('do_meta_boxes', 'remove_custom_field_meta_boxes');
+
+
+// Remove the admin bar
+function remove_admin_bar() {
+
+  show_admin_bar( false );
+
+}
+
+// Hook admin bar function to end of theme setup
+add_action( 'after_setup_theme', 'remove_admin_bar' );
 
 ?>
